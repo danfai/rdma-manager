@@ -268,7 +268,7 @@ void BaseRDMA::internalFree(const size_t &offset) {
 
         return;
       }
-      lastOffset += memRes.offset;
+      lastOffset = memRes.offset;
     }
   } else {
     memResFree.free = true;
