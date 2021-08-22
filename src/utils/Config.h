@@ -62,7 +62,8 @@ namespace rdma
 class Config
 {
   public:
-    Config(const std::string& prog_name);
+    Config(const std::string &exec_path);
+    Config(const std::string &file_path, bool is_exec_path);
     ~Config();
 
     //RDMA
@@ -110,7 +111,8 @@ class Config
     static string getIP(std::string &interface);
 
   private:
-    static void load(const string& exec_path);
+    static void load(const string &exec_path);
+    static void load(const string &file_path, bool is_exec_path);
     static void unload();
 
     static void set(string key, string value);

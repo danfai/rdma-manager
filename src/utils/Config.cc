@@ -6,9 +6,9 @@
 
 using namespace rdma;
 
-Config::Config(const std::string& prog_name)
-{
-    Config::load(prog_name);
+Config::Config(const std::string &exec_path) : Config(exec_path, true){}
+Config::Config(const std::string &file_path, bool is_exec_path){
+    Config::load(file_path, is_exec_path);
     auto num_cpu_cores = 0;
     auto num_numa_nodes = 0;
     
@@ -99,14 +99,19 @@ void Config::unload() {
   google::protobuf::ShutdownProtobufLibrary();
 }
 
-void Config::load(const string& prog_name) {
-  string conf_file;
-  if (prog_name.empty() || prog_name.find("/") == string::npos) {
-    conf_file = ".";
-  } else {
-    conf_file = prog_name.substr(0, prog_name.find_last_of("/"));
+void Config::load(const string &exec_path) {
+  load(exec_path, true);
+}
+void Config::load(const string &file_path, bool is_exec_path) {
+  string conf_file = file_path;
+  if(is_exec_path){
+    if (file_path.empty() || file_path.find("/") == string::npos) {
+      conf_file = ".";
+    } else {
+      conf_file = file_path.substr(0, file_path.find_last_of("/"));
+    }
+    conf_file += "/conf/RDMA.conf";
   }
-  conf_file += "/conf/RDMA.conf";
 
   ifstream file(conf_file.c_str());
 
@@ -157,6 +162,8 @@ void Config::set(string key, string value) {
     Config::RDMA_INTERFACE = value;
   }else if (key.compare("RDMA_DEV_NAME") == 0) {
     Config::RDMA_DEV_NAME = value;
+  } else {
+    std::cerr << "Config: UNKNOWN key '" << key << "' = '" << value << "'" << std::endl;
   }
 }
 
