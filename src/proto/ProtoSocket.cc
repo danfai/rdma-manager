@@ -99,11 +99,14 @@ bool ProtoSocket::receive(Any* msg) {
 
   zmq::message_t zmsg;
   bool recv = false;
+again:
   try {
     recv = m_pSock->recv(&zmsg);
   } catch (zmq::error_t& e) {
     // recv() throws ETERM when the zmq context is destroyed
     // http://stackoverflow.com/questions/18811146/zmq-recv-is-blocking-even-after-the-context-was-terminated
+    if (e.num() == EINTR)
+      goto again;
     if (e.num() != ETERM) {
       Logging::fatal(__FILE__, __LINE__, e.what());
     } else if (m_isOpen) {
